@@ -1,0 +1,20 @@
+# Training outputs and model weights
+p100_text_distillation/
+final_distilled_text_model/
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.bak
