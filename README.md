@@ -45,10 +45,10 @@ $p$ is the student's softened distribution and $q$ is the teacher's. $T = 1$ is 
 Standard next-token cross-entropy on the student, computed by the model from its unsoftened logits ($T = 1$). Labels are a copy of the input shifted by one; positions whose label is `-100` (padding) are excluded:
 
 $$
-\mathcal{L}_{\text{LM}} = -\frac{1}{|\mathcal{M}|} \sum_{(b,t) \in \mathcal{M}} \log \operatorname{softmax}(z_{b,t})_{x_{b,t+1}}
+\mathcal{L}_{\text{LM}} = -\frac{1}{|\mathcal{M}|} \sum_{(b,t) \in \mathcal{M}} \log P_{\text{student}}\left(x_{b,t+1} \mid x_{b,1}, \dots, x_{b,t}\right)
 $$
 
-where $\mathcal{M}$ is the set of non-padding positions in the batch.
+where $\mathcal{M}$ is the set of non-padding positions in the batch, and $P_{\text{student}}$ is the ordinary softmax of the student's logits $z_{b,t}$ (no temperature).
 
 ### Distillation loss
 
