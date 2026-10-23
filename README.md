@@ -10,7 +10,7 @@ The student is trained on a mix of two losses:
 - **Distillation loss** – KL divergence between the teacher's and student's next-token distributions, softened by a temperature.
 
 $$
-\mathcal{L} = \alpha \, \mathcal{L}_{\text{LM}} + (1 - \alpha) \, T^2 \, \mathcal{L}_{\text{KD}}
+\mathcal{L} = \alpha \mathcal{L}_{\text{LM}} + (1 - \alpha) T^2 \mathcal{L}_{\text{KD}}
 $$
 
 With the defaults ($\alpha = 0.5$, $T = 2$), both terms are weighted equally.
@@ -55,7 +55,7 @@ where $\mathcal{M}$ is the set of non-padding positions in the batch, and $P_{\t
 KL divergence from the teacher's softened distribution to the student's, summed over the vocabulary and positions and divided by the batch size (PyTorch's `KLDivLoss(reduction="batchmean")`):
 
 $$
-\mathcal{L}_{\text{KD}} = \frac{1}{B} \sum_{b=1}^{B} \sum_{t=1}^{L} \sum_{i=1}^{V} q_{b,t,i} \, \log \frac{q_{b,t,i}}{p_{b,t,i}}
+\mathcal{L}_{\text{KD}} = \frac{1}{B} \sum_{b=1}^{B} \sum_{t=1}^{L} \sum_{i=1}^{V} q_{b,t,i} \log \frac{q_{b,t,i}}{p_{b,t,i}}
 $$
 
 Two consequences of this exact form:
@@ -76,13 +76,13 @@ The $\frac{1}{T}$ comes from the chain rule through $z / T$. For large $T$, $e^{
 $$
 p_{t,i} \approx \frac{1 + z_{t,i}/T}{V}
 \quad\Longrightarrow\quad
-p_{t,i} - q_{t,i} \approx \frac{z_{t,i} - v_{t,i}}{V \, T}
+p_{t,i} - q_{t,i} \approx \frac{z_{t,i} - v_{t,i}}{V T}
 $$
 
 Combining the two:
 
 $$
-\frac{\partial \mathcal{L}_{\text{KD}}}{\partial z_{t,i}} \approx \frac{z_{t,i} - v_{t,i}}{V \, T^2}
+\frac{\partial \mathcal{L}_{\text{KD}}}{\partial z_{t,i}} \approx \frac{z_{t,i} - v_{t,i}}{V T^2}
 $$
 
 The gradient shrinks like $\frac{1}{T^2}$. Multiplying the loss by $T^2$ cancels this, so the distillation gradient keeps roughly the same magnitude for any $T$ and $\alpha$ keeps its meaning. This follows [Hinton et al., 2015](https://arxiv.org/abs/1503.02531). The approximation is best when $T$ is large relative to the logit differences, so the correction is not exact at small $T$.
@@ -91,15 +91,10 @@ The gradient shrinks like $\frac{1}{T^2}$. Multiplying the loss by $T^2$ cancels
 
 `infer.py` generates one token at a time. At each step, with student logits $z$ for the next token:
 
-**1. Repetition penalty** ($\rho = 1.2$): for every token $i$ already in the text,
+**1. Repetition penalty** ($\rho = 1.2$): for every token $i$ already in the text, its logit is pushed down:
 
-$$
-z_i \leftarrow
-\begin{cases}
-z_i / \rho & z_i > 0 \\
-z_i \cdot \rho & z_i \le 0
-\end{cases}
-$$
+- if $z_i > 0$: $z_i \leftarrow z_i / \rho$
+- if $z_i \le 0$: $z_i \leftarrow z_i \cdot \rho$
 
 **2. Temperature** ($\tau = 0.7$, separate from the training $T$): $\tau < 1$ sharpens the distribution.
 
