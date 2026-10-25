@@ -87,8 +87,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(student_id)
     tokenizer.pad_token = tokenizer.eos_token  # Set pad token for causal text generation
 
-    teacher_model = AutoModelForCausalLM.from_pretrained(teacher_id, dtype=torch.float32)
-    student_model = AutoModelForCausalLM.from_pretrained(student_id, dtype=torch.float32)
+    teacher_model = AutoModelForCausalLM.from_pretrained(teacher_id, dtype=torch.float32,  device_map="cuda")
+    student_model = AutoModelForCausalLM.from_pretrained(student_id, dtype=torch.float32,  device_map="cuda")
 
     # 4. Stream and Process Raw Open Text Data
     print("Streaming fineweb-edu dataset from Hugging Face...")
