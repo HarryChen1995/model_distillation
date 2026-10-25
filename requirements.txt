@@ -1,4 +1,11 @@
+# The Tesla P100 is a Pascal GPU (sm_60). Newer PyTorch CUDA builds (cu128 and later)
+# no longer include Pascal kernels, so install PyTorch from the CUDA 12.6 index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+# then install the rest:
+#   pip install -r requirements.txt
 torch>=2.2.0
-transformers>=4.40.0
+
+# 5.x: from_pretrained(dtype=...), and Trainer passes num_items_in_batch to compute_loss
+transformers>=5.0.0,<6
 datasets>=2.19.0
-accelerate>=0.29.0
+accelerate>=1.0.0

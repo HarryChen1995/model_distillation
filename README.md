@@ -112,7 +112,10 @@ then renormalize over $S$ and sample the next token from it. With $\tau = 0$ the
 
 ## Setup
 
+The P100 is a Pascal GPU (sm_60), which newer PyTorch CUDA builds (cu128 and later) no longer support. Install PyTorch from the CUDA 12.6 index first, then the rest:
+
 ```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 ```
 
